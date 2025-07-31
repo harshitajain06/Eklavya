@@ -77,7 +77,7 @@ export default function AuthPage() {
         </View>
       </View>
       <Text style={[styles.title, isDarkMode && { color: '#fff' }]}>
-        Welcome to MandiGuard
+        Welcome to Our App
       </Text>
 
       {/* Tabs */}
