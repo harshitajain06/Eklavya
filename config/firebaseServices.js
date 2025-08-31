@@ -240,6 +240,35 @@ export const bookingServices = {
         }
     },
 
+    async updateBookingStatus(bookingId, status, additionalData = {}) {
+        try {
+            const bookingRef = doc(db, 'bookings', bookingId);
+            const updateData = {
+                status: status,
+                updatedAt: serverTimestamp(),
+                ...additionalData
+            };
+            
+            // Add status-specific fields
+            if (status === 'confirmed') {
+                updateData.confirmedAt = serverTimestamp();
+                updateData.confirmedBy = additionalData.confirmedBy || 'scribe';
+            } else if (status === 'rejected') {
+                updateData.rejectedAt = serverTimestamp();
+                updateData.rejectedBy = additionalData.rejectedBy || 'scribe';
+                updateData.rejectionReason = additionalData.rejectionReason || 'No reason provided';
+            } else if (status === 'completed') {
+                updateData.completedAt = serverTimestamp();
+            }
+            
+            await updateDoc(bookingRef, updateData);
+            return { success: true };
+        } catch (error) {
+            console.error('Error updating booking status:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
     async getUserBookings(userId, role = 'student') {
         try {
             const bookingsRef = collection(db, 'bookings');
