@@ -1,129 +1,201 @@
-import React, { useState } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import React from 'react';
 import {
-  SafeAreaView,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  Platform
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import { useColorScheme } from '../../hooks/useColorScheme';
 
-const BookAScribeScreen = () => {
-  const [name, setName] = useState('');
-  const [subject, setSubject] = useState('');
-  const [date, setDate] = useState(new Date());
-  const [showPicker, setShowPicker] = useState(false);
-  const [notes, setNotes] = useState('');
+export default function ResourceBankScreen() {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
 
-  const onChangeDate = (event, selectedDate) => {
-    const currentDate = selectedDate || date;
-    setShowPicker(Platform.OS === 'ios');
-    setDate(currentDate);
-  };
+  const resources = [
+    {
+      id: 1,
+      title: 'Math audio resources',
+      subtitle: 'Audio',
+      description: 'Curated playlists for IB & CBSE',
+      type: 'audio'
+    },
+    {
+      id: 2,
+      title: 'Screen reader shortcuts',
+      subtitle: 'Guide',
+      description: 'NVDA, VoiceOver, TalkBack',
+      type: 'guide'
+    },
+    {
+      id: 3,
+      title: 'Accessible exam tips',
+      subtitle: 'Tips',
+      description: 'Best practices for students & scribes',
+      type: 'tips'
+    }
+  ];
 
-  const showDatePicker = () => setShowPicker(true);
-
-  const handleBook = () => {
-    // TODO: integrate booking logic (API call/send to backend)
-    console.log('Booking details:', { name, subject, date, notes });
+  const handleOpenResource = (resource) => {
+    // TODO: Implement resource opening functionality
+    console.log('Opening resource:', resource.title);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Book a Scribe</Text>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: isDarkMode ? '#121212' : '#f5f5f5' }]}>
+      <ScrollView style={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity style={styles.iconButton}>
+              <Ionicons name="grid" size={20} color="#6c757d" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.backButton}>
+              <Ionicons name="arrow-back" size={20} color="#6c757d" />
+            </TouchableOpacity>
+            <Text style={[styles.headerTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Resource Bank</Text>
+          </View>
+          <View style={styles.headerActions}>
+            <Text style={styles.themeText}>Theme</Text>
+            <TouchableOpacity style={styles.aboutButton}>
+              <Ionicons name="information-circle" size={16} color="#6c757d" />
+              <Text style={styles.aboutText}>About</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.menuButton}>
+              <Ionicons name="menu" size={20} color="#6c757d" />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Your Name"
-          value={name}
-          onChangeText={setName}
-        />
-
-        <TextInput
-          style={styles.input}
-          placeholder="Subject / Exam"
-          value={subject}
-          onChangeText={setSubject}
-        />
-
-        <TouchableOpacity style={styles.datePicker} onPress={showDatePicker}>
-          <Text style={styles.dateText}>{date.toLocaleString()}</Text>
-        </TouchableOpacity>
-
-        {showPicker && (
-          <DateTimePicker
-            value={date}
-            mode="datetime"
-            display="default"
-            onChange={onChangeDate}
-          />
-        )}
-
-        <TextInput
-          style={[styles.input, styles.notes]}
-          placeholder="Additional Notes (e.g., exam center, specific requirements)"
-          value={notes}
-          onChangeText={setNotes}
-          multiline
-        />
-
-        <TouchableOpacity style={styles.button} onPress={handleBook}>
-          <Text style={styles.buttonText}>Confirm Booking</Text>
-        </TouchableOpacity>
-      </View>
+        {/* Resource Cards */}
+        <View style={styles.resourcesContainer}>
+          {resources.map((resource) => (
+            <View key={resource.id} style={[styles.resourceCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+              <View style={styles.resourceHeader}>
+                <Text style={[styles.resourceTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                  {resource.title}
+                </Text>
+                <Text style={[styles.resourceSubtitle, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                  {resource.subtitle}
+                </Text>
+              </View>
+              
+              <Text style={[styles.resourceDescription, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                {resource.description}
+              </Text>
+              
+              <TouchableOpacity 
+                style={styles.openButton}
+                onPress={() => handleOpenResource(resource)}
+              >
+                <Text style={styles.openButtonText}>Open</Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
+  safeArea: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    padding: 20,
-    justifyContent: 'center'
+    paddingHorizontal: 20,
   },
-  title: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center'
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 16,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
   },
-  notes: {
-    height: 100,
-    textAlignVertical: 'top'
+  iconButton: {
+    padding: 8,
   },
-  datePicker: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 15
+  backButton: {
+    padding: 8,
   },
-  dateText: {
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  themeText: {
     fontSize: 16,
-    color: '#333'
+    color: '#8b5cf6',
+    fontWeight: '500',
   },
-  button: {
-    backgroundColor: '#6200EE',
-    paddingVertical: 14,
-    borderRadius: 8
+  aboutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
   },
-  buttonText: {
-    color: '#fff',
-    textAlign: 'center',
+  aboutText: {
+    fontSize: 14,
+    color: '#11181C',
+    fontWeight: '500',
+  },
+  menuButton: {
+    padding: 8,
+  },
+  resourcesContainer: {
+    gap: 16,
+    paddingVertical: 20,
+  },
+  resourceCard: {
+    padding: 20,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  resourceHeader: {
+    marginBottom: 12,
+  },
+  resourceTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  resourceSubtitle: {
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  resourceDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 20,
+  },
+  openButton: {
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    alignSelf: 'flex-start',
+  },
+  openButtonText: {
+    color: '#8b5cf6',
+    fontSize: 14,
     fontWeight: '600',
-    fontSize: 16
-  }
+  },
 });
-
-export default BookAScribeScreen;

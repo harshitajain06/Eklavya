@@ -1,25 +1,28 @@
 // src/navigation/StackLayout.jsx
 
-import React, { useEffect, useState } from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { View, ActivityIndicator, Alert } from "react-native";
-import { signOut } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, View } from "react-native";
 
-import DashboardScreen from "./DashboardScreen";
+import AboutScreen from "./AboutScreen";
 import BookScribeScreen from "./BookScribeScreen";
-import ResourceBankScreen from "./ResourceBankScreen";
-import MyUpcomingExamsScreen from "./MyUpcomingExamsScreen";
+import DashboardScreen from "./DashboardScreen";
+import FindScribeScreen from "./FindScribeScreen";
 import LoginRegister from './index';
+import MyCalendarScreen from "./MyCalendarScreen";
+import ProfileScreen from "./ProfileScreen";
+import ResourceBankScreen from "./ResourceBankScreen";
+import ScribeViewScreen from "./ScribeViewScreen";
 
+import { auth } from '../../config/Firebase';
 import { Colors } from "../../constants/Colors";
 import { useColorScheme } from "../../hooks/useColorScheme";
-import { auth } from '../../config/firebase';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,8 +44,8 @@ const StudentTabs = () => {
           let iconName;
           if (route.name === "Dashboard") {
             iconName = focused ? "home" : "home-outline";
-          } else if (route.name === "Book Scribe") {
-            iconName = focused ? "book" : "book-outline";
+          } else if (route.name === "Find Scribe") {
+            iconName = focused ? "search" : "search-outline";
           } else if (route.name === "Resource Bank") {
             iconName = focused ? "library" : "library-outline";
           }
@@ -51,8 +54,10 @@ const StudentTabs = () => {
       })}
     >
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
-      <Tab.Screen name="Book Scribe" component={BookScribeScreen} />
+      <Tab.Screen name="Find Scribe" component={FindScribeScreen} />
       <Tab.Screen name="Resource Bank" component={ResourceBankScreen} />
+      <Tab.Screen name="ScribeView" component={ScribeViewScreen} options={{ tabBarButton: () => null }} />
+      <Tab.Screen name="BookScribe" component={BookScribeScreen} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 };
@@ -69,14 +74,20 @@ const ScribeTabs = () => {
           backgroundColor: Colors[colorScheme ?? "light"].background,
         },
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName = route.name === "My Upcoming Exams"
-            ? (focused ? "calendar" : "calendar-outline")
-            : "ellipse";
+          let iconName;
+          if (route.name === "Dashboard") {
+            iconName = focused ? "home" : "home-outline";
+          } else if (route.name === "My Calendar") {
+            iconName = focused ? "calendar" : "calendar-outline";
+          } else if (route.name === "Profile") {
+            iconName = focused ? "person" : "person-outline";
+          }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="My Upcoming Exams" component={MyUpcomingExamsScreen} />
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="My Calendar" component={MyCalendarScreen} />
     </Tab.Navigator>
   );
 };
@@ -101,6 +112,40 @@ const DrawerNavigator = ({ role }) => {
         name="MainTabs"
         component={role === 'scribe' ? ScribeTabs : StudentTabs}
         options={{ title: 'Home' }}
+      />
+      {role === 'scribe' && (
+        <Drawer.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{
+            title: 'Profile',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="person-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
+      {role === 'student' && (
+        <Drawer.Screen
+          name="MyCalendar"
+          component={MyCalendarScreen}
+          options={{
+            title: 'My Calendar',
+            drawerIcon: ({ color, size }) => (
+              <Ionicons name="calendar-outline" size={size} color={color} />
+            ),
+          }}
+        />
+      )}
+      <Drawer.Screen
+        name="About"
+        component={AboutScreen}
+        options={{
+          title: 'About',
+          drawerIcon: ({ color, size }) => (
+            <Ionicons name="information-circle-outline" size={size} color={color} />
+          ),
+        }}
       />
       <Drawer.Screen
         name="Logout"
