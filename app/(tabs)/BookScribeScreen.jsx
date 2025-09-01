@@ -397,6 +397,8 @@ export default function BookScribeScreen() {
                  onPress={() => {
                    setShowBookingModal(false);
                    setCurrentBooking(null);
+                   // Navigate to home screen (Dashboard)
+                   navigation.navigate('Drawer', { screen: 'MainTabs' });
                  }}
                >
                  <Text style={styles.modalButtonText}>Close</Text>
@@ -407,7 +409,8 @@ export default function BookScribeScreen() {
                  onPress={() => {
                    setShowBookingModal(false);
                    setCurrentBooking(null);
-                   navigation.navigate('MyCalendar');
+                   // Navigate to My Calendar in drawer navigator
+                   navigation.navigate('Drawer', { screen: 'MyCalendar' });
                  }}
                >
                  <Text style={[styles.modalButtonText, { color: '#fff' }]}>View My Calendar</Text>

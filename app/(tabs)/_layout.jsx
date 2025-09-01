@@ -56,8 +56,6 @@ const StudentTabs = () => {
       <Tab.Screen name="Dashboard" component={DashboardScreen} />
       <Tab.Screen name="Find Scribe" component={FindScribeScreen} />
       <Tab.Screen name="Resource Bank" component={ResourceBankScreen} />
-      <Tab.Screen name="ScribeView" component={ScribeViewScreen} options={{ tabBarButton: () => null }} />
-      <Tab.Screen name="BookScribe" component={BookScribeScreen} options={{ tabBarButton: () => null }} />
     </Tab.Navigator>
   );
 };
@@ -137,6 +135,8 @@ const DrawerNavigator = ({ role }) => {
           }}
         />
       )}
+
+
       <Drawer.Screen
         name="About"
         component={AboutScreen}
@@ -221,6 +221,20 @@ export default function StackLayout() {
           </Stack.Screen>
         ) : (
           <Stack.Screen name="LoginRegister" component={LoginRegister} />
+        )}
+        {user && (
+          <Stack.Screen 
+            name="ScribeView" 
+            component={ScribeViewScreen}
+            options={{ headerShown: false }}
+          />
+        )}
+        {user && (
+          <Stack.Screen 
+            name="BookScribe" 
+            component={BookScribeScreen}
+            options={{ headerShown: false }}
+          />
         )}
       </Stack.Navigator>
   );
