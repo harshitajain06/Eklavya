@@ -2,15 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Modal,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import useFirebase from '../../hooks/useFirebase';
@@ -29,9 +31,16 @@ export default function FindScribeScreen() {
   const [filteredScribes, setFilteredScribes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [showSubjectModal, setShowSubjectModal] = useState(false);
 
-  const languages = ['Any', 'English', 'Hindi', 'Gujarati', 'Marathi'];
-  const subjects = ['Any', 'Math', 'Physics', 'Chemistry', 'English', 'History'];
+  // Available options for dropdowns (matching ScribeProfileScreen)
+  const availableLanguages = ['Any', 'English', 'Hindi', 'Gujarati', 'Marathi', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Bengali', 'Punjabi'];
+  const availableSubjects = [
+    'Any', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'Computer Science', 
+    'Economics', 'History', 'Geography', 'Literature', 'Philosophy',
+    'Psychology', 'Sociology', 'Political Science', 'Engineering', 'Medical'
+  ];
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -144,10 +153,12 @@ export default function FindScribeScreen() {
 
   const handleLanguageSelect = (language) => {
     setSelectedLanguage(language);
+    setShowLanguageModal(false);
   };
 
   const handleSubjectSelect = (subject) => {
     setSelectedSubject(subject);
+    setShowSubjectModal(false);
   };
 
   const handleSearch = () => {
@@ -209,7 +220,7 @@ export default function FindScribeScreen() {
                 <View style={styles.dropdownContainer}>
                   <TouchableOpacity 
                     style={[styles.dropdown, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}
-                    onPress={() => handleLanguageSelect(selectedLanguage === 'Any' ? 'English' : selectedLanguage)}
+                    onPress={() => setShowLanguageModal(true)}
                   >
                     <Text style={[styles.dropdownText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>{selectedLanguage}</Text>
                     <Ionicons name="chevron-down" size={16} color="#6c757d" />
@@ -219,7 +230,7 @@ export default function FindScribeScreen() {
                 <View style={styles.dropdownContainer}>
                   <TouchableOpacity 
                     style={[styles.dropdown, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}
-                    onPress={() => handleSubjectSelect(selectedSubject === 'Any' ? 'Math' : selectedSubject)}
+                    onPress={() => setShowSubjectModal(true)}
                   >
                     <Text style={[styles.dropdownText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>{selectedSubject}</Text>
                     <Ionicons name="chevron-down" size={16} color="#6c757d" />
@@ -373,6 +384,92 @@ export default function FindScribeScreen() {
             </View>
           </View>
         </View>
+
+        {/* Language Selection Modal */}
+        <Modal
+          visible={showLanguageModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowLanguageModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Select Language</Text>
+                <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
+                  <Ionicons name="close" size={24} color="#6c757d" />
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={availableLanguages}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.modalItem,
+                      selectedLanguage === item && styles.selectedModalItem
+                    ]}
+                    onPress={() => handleLanguageSelect(item)}
+                  >
+                    <Text style={[
+                      styles.modalItemText,
+                      { color: isDarkMode ? '#fff' : '#11181C' },
+                      selectedLanguage === item && styles.selectedModalItemText
+                    ]}>
+                      {item}
+                    </Text>
+                    {selectedLanguage === item && (
+                      <Ionicons name="checkmark" size={20} color="#8b5cf6" />
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
+
+        {/* Subject Selection Modal */}
+        <Modal
+          visible={showSubjectModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowSubjectModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Select Subject</Text>
+                <TouchableOpacity onPress={() => setShowSubjectModal(false)}>
+                  <Ionicons name="close" size={24} color="#6c757d" />
+                </TouchableOpacity>
+              </View>
+              <FlatList
+                data={availableSubjects}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.modalItem,
+                      selectedSubject === item && styles.selectedModalItem
+                    ]}
+                    onPress={() => handleSubjectSelect(item)}
+                  >
+                    <Text style={[
+                      styles.modalItemText,
+                      { color: isDarkMode ? '#fff' : '#11181C' },
+                      selectedSubject === item && styles.selectedModalItemText
+                    ]}>
+                      {item}
+                    </Text>
+                    {selectedSubject === item && (
+                      <Ionicons name="checkmark" size={20} color="#8b5cf6" />
+                    )}
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </SafeAreaView>
   );
@@ -697,5 +794,47 @@ const styles = StyleSheet.create({
   tipItem: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    maxHeight: '70%',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  modalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#f8f9fa',
+  },
+  selectedModalItem: {
+    backgroundColor: '#8b5cf6',
+  },
+  modalItemText: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  selectedModalItemText: {
+    color: '#fff',
   },
 });
