@@ -2,17 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import useFirebase from '../../hooks/useFirebase';
@@ -26,7 +26,7 @@ export default function FindScribeScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('Any');
   const [selectedSubject, setSelectedSubject] = useState('Any');
-  const [maxDistance, setMaxDistance] = useState('10');
+  const maxDistance = '10'; // Default distance in km
   const [scribes, setScribes] = useState([]);
   const [filteredScribes, setFilteredScribes] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -106,7 +106,8 @@ export default function FindScribeScreen() {
       filtered = filtered.filter(scribe => 
         scribe.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         scribe.subjects?.some(subject => subject.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        scribe.languages?.some(language => language.toLowerCase().includes(searchQuery.toLowerCase()))
+        scribe.languages?.some(language => language.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        scribe.city?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
@@ -146,10 +147,6 @@ export default function FindScribeScreen() {
     navigation.navigate('ScribeView', { scribe });
   };
 
-  const handleBookScribe = (scribe) => {
-    // TODO: Navigate to booking screen
-    Alert.alert('Book Scribe', `Booking ${scribe.name} for exam`);
-  };
 
   const handleLanguageSelect = (language) => {
     setSelectedLanguage(language);
@@ -173,7 +170,6 @@ export default function FindScribeScreen() {
     setSearchQuery('');
     setSelectedLanguage('Any');
     setSelectedSubject('Any');
-    setMaxDistance('10');
     setSearchPerformed(false);
     loadNearbyScribes();
   };
@@ -181,93 +177,90 @@ export default function FindScribeScreen() {
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDarkMode ? '#121212' : '#f5f5f5' }]}>
       <ScrollView style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity style={styles.backButton}>
-              <Ionicons name="arrow-back" size={20} color="#6c757d" />
-            </TouchableOpacity>
-            <Text style={[styles.headerTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Find a Scribe</Text>
-          </View>
-          <View style={styles.headerActions}>
-            <Text style={styles.themeText}>Theme</Text>
-            <TouchableOpacity style={styles.aboutButton}>
-              <Ionicons name="information-circle" size={16} color="#6c757d" />
-              <Text style={styles.aboutText}>About</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
-              <Ionicons name="menu" size={20} color="#6c757d" />
-            </TouchableOpacity>
-          </View>
-        </View>
 
         <View style={styles.content}>
           {/* Left Column - Main Content */}
           <View style={styles.mainContent}>
             {/* Search Section */}
             <View style={[styles.searchCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
-              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Search</Text>
+              <View style={styles.searchHeader}>
+                <View style={styles.searchTitleContainer}>
+                  <Ionicons name="search" size={24} color="#8b5cf6" />
+                  <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Find Your Perfect Scribe</Text>
+                </View>
+                <Text style={[styles.searchDescription, { color: isDarkMode ? '#94a3b8' : '#64748b' }]}>
+                  Search by name, subject, language, or city to find qualified scribes
+                </Text>
+              </View>
               
               <View style={styles.searchRow}>
+                <View style={styles.searchInputContainer}>
+                  <Ionicons name="search" size={20} color="#8b5cf6" style={styles.searchIcon} />
                 <TextInput
-                  style={[styles.searchInput, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}
-                  placeholder="Name, subject, language"
-                  placeholderTextColor={isDarkMode ? '#666' : '#999'}
+                    style={[styles.searchInput, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8fafc' }]}
+                    placeholder="Name, subject, language, city"
+                    placeholderTextColor={isDarkMode ? '#94a3b8' : '#94a3b8'}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                 />
+                </View>
                 
                 <View style={styles.dropdownContainer}>
                   <TouchableOpacity 
-                    style={[styles.dropdown, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}
+                    style={[styles.dropdown, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8fafc' }]}
                     onPress={() => setShowLanguageModal(true)}
                   >
-                    <Text style={[styles.dropdownText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>{selectedLanguage}</Text>
-                    <Ionicons name="chevron-down" size={16} color="#6c757d" />
+                    <Ionicons name="language" size={16} color="#8b5cf6" />
+                    <Text style={[styles.dropdownText, { color: isDarkMode ? '#e2e8f0' : '#475569' }]}>{selectedLanguage}</Text>
+                    <Ionicons name="chevron-down" size={16} color="#8b5cf6" />
                   </TouchableOpacity>
                 </View>
                 
                 <View style={styles.dropdownContainer}>
                   <TouchableOpacity 
-                    style={[styles.dropdown, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}
+                    style={[styles.dropdown, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8fafc' }]}
                     onPress={() => setShowSubjectModal(true)}
                   >
-                    <Text style={[styles.dropdownText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>{selectedSubject}</Text>
-                    <Ionicons name="chevron-down" size={16} color="#6c757d" />
+                    <Ionicons name="book" size={16} color="#8b5cf6" />
+                    <Text style={[styles.dropdownText, { color: isDarkMode ? '#e2e8f0' : '#475569' }]}>{selectedSubject}</Text>
+                    <Ionicons name="chevron-down" size={16} color="#8b5cf6" />
                   </TouchableOpacity>
                 </View>
               </View>
               
               <View style={styles.searchActions}>
-                <TouchableOpacity style={styles.searchButton} onPress={handleSearch}>
+                <TouchableOpacity style={[styles.searchButton, { backgroundColor: '#8b5cf6' }]} onPress={handleSearch}>
                   {isLoading ? (
                     <ActivityIndicator size="small" color="#fff" />
                   ) : (
-                    <Text style={styles.searchButtonText}>Search</Text>
+                    <>
+                      <Ionicons name="search" size={18} color="#fff" />
+                      <Text style={styles.searchButtonText}>Search Scribes</Text>
+                    </>
                   )}
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.resetButton} onPress={handleResetFilters}>
-                  <Text style={styles.resetButtonText}>Reset</Text>
+                <TouchableOpacity style={[styles.resetButton, { backgroundColor: isDarkMode ? '#374151' : '#f1f5f9' }]} onPress={handleResetFilters}>
+                  <Ionicons name="refresh" size={16} color={isDarkMode ? '#e2e8f0' : '#475569'} />
+                  <Text style={[styles.resetButtonText, { color: isDarkMode ? '#e2e8f0' : '#475569' }]}>Reset</Text>
                 </TouchableOpacity>
               </View>
-
-              <View style={[styles.mapPlaceholder, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}>
-                <Ionicons name="map" size={24} color="#6c757d" />
-                <Text style={[styles.mapText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                  Map preview placeholder (auto-centers to your city)
-                </Text>
-              </View>
             </View>
+
 
             {/* Scribe Listings */}
             <View style={styles.scribeListings}>
               <View style={styles.listingsHeader}>
+                <View style={styles.listingsTitleContainer}>
+                  <Ionicons name="people" size={24} color="#8b5cf6" />
                 <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>
                   Available Scribes
                 </Text>
-                <Text style={[styles.resultsCount, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                  {filteredScribes.length} {filteredScribes.length === 1 ? 'scribe' : 'scribes'} found
+                </View>
+                <View style={[styles.resultsBadge, { backgroundColor: isDarkMode ? '#374151' : '#e0e7ff' }]}>
+                  <Text style={[styles.resultsCount, { color: isDarkMode ? '#e2e8f0' : '#8b5cf6' }]}>
+                    {filteredScribes.length} {filteredScribes.length === 1 ? 'scribe' : 'scribes'}
                 </Text>
+                </View>
               </View>
 
               {isLoading ? (
@@ -280,42 +273,59 @@ export default function FindScribeScreen() {
               ) : filteredScribes.length > 0 ? (
                 filteredScribes.map((scribe) => (
                   <View key={scribe.id} style={[styles.scribeCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+                    <View style={styles.scribeCardHeader}>
+                      <View style={[styles.scribeAvatar, { backgroundColor: '#8b5cf6' }]}>
+                        <Text style={styles.scribeInitial}>
+                          {scribe.name ? scribe.name.charAt(0).toUpperCase() : 'S'}
+                        </Text>
+                      </View>
                     <View style={styles.scribeInfo}>
                       <Text style={[styles.scribeName, { color: isDarkMode ? '#fff' : '#11181C' }]}>
                         {scribe.name}
                       </Text>
-                      <Text style={[styles.scribeDistance, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                        <View style={styles.scribeLocation}>
+                          <Ionicons name="location" size={14} color="#8b5cf6" />
+                          <Text style={[styles.scribeDistance, { color: isDarkMode ? '#94a3b8' : '#64748b' }]}>
                         {scribe.city || 'Location TBD'}
                       </Text>
-                      <Text style={[styles.scribeExpertise, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                        {scribe.languages?.join(', ') || 'Languages TBD'} • {scribe.subjects?.join(', ') || 'Subjects TBD'}
-                      </Text>
-                      <View style={styles.ratingContainer}>
-                        <View style={styles.stars}>
-                          {renderStars(scribe.rating || 0)}
                         </View>
-                        <Text style={[styles.ratingText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                      </View>
+                      <View style={[styles.ratingBadge, { backgroundColor: isDarkMode ? '#374151' : '#f0f9ff' }]}>
+                        <Ionicons name="star" size={14} color="#fbbf24" />
+                        <Text style={[styles.ratingText, { color: isDarkMode ? '#e2e8f0' : '#1e40af' }]}>
                           {scribe.rating?.toFixed(1) || '0.0'}
-                        </Text>
-                        <Text style={[styles.bookingCount, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                          ({scribe.totalBookings || 0} bookings)
                         </Text>
                       </View>
                     </View>
                     
-                    <View style={styles.scribeActions}>
+                    <View style={styles.scribeExpertise}>
+                      <View style={styles.expertiseItem}>
+                        <Ionicons name="language" size={14} color="#8b5cf6" />
+                        <Text style={[styles.expertiseText, { color: isDarkMode ? '#94a3b8' : '#64748b' }]}>
+                          {scribe.languages?.join(', ') || 'Languages TBD'}
+                        </Text>
+                      </View>
+                      <View style={styles.expertiseItem}>
+                        <Ionicons name="book" size={14} color="#8b5cf6" />
+                        <Text style={[styles.expertiseText, { color: isDarkMode ? '#94a3b8' : '#64748b' }]}>
+                          {scribe.subjects?.join(', ') || 'Subjects TBD'}
+                        </Text>
+                      </View>
+                    </View>
+                    
+                    <View style={styles.scribeFooter}>
+                      <View style={styles.bookingInfo}>
+                        <Ionicons name="calendar" size={14} color="#8b5cf6" />
+                        <Text style={[styles.bookingCount, { color: isDarkMode ? '#94a3b8' : '#64748b' }]}>
+                          {scribe.totalBookings || 0} bookings completed
+                        </Text>
+                      </View>
                       <TouchableOpacity 
-                        style={styles.viewButton}
+                        style={[styles.viewButton, { backgroundColor: '#8b5cf6' }]}
                         onPress={() => handleViewScribe(scribe)}
                       >
-                        <Text style={styles.viewButtonText}>View</Text>
-                      </TouchableOpacity>
-                      
-                      <TouchableOpacity 
-                        style={styles.bookButton}
-                        onPress={() => handleBookScribe(scribe)}
-                      >
-                        <Text style={styles.bookButtonText}>Book</Text>
+                        <Ionicons name="eye" size={16} color="#fff" />
+                        <Text style={styles.viewButtonText}>View Details</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -346,41 +356,58 @@ export default function FindScribeScreen() {
 
           {/* Right Column - Sidebar */}
           <View style={styles.sidebar}>
-            {/* Filters */}
-            <View style={[styles.filtersCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
-              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Filters</Text>
-              
-              <View style={styles.filterField}>
-                <Text style={[styles.filterLabel, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>Max distance</Text>
-                <TextInput
-                  style={[styles.distanceInput, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8f9fa' }]}
-                  value={maxDistance}
-                  onChangeText={setMaxDistance}
-                  keyboardType="numeric"
-                />
-                <Text style={[styles.distanceUnit, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>km</Text>
+            {/* Quick Stats */}
+            <View style={[styles.statsCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Quick Stats</Text>
+              <View style={styles.statsGrid}>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statNumber, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                    {filteredScribes.length}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                    Available Scribes
+                  </Text>
               </View>
-              
-              <TouchableOpacity style={styles.advancedButton}>
-                <Text style={styles.advancedButtonText}>Advanced...</Text>
-              </TouchableOpacity>
+                <View style={styles.statItem}>
+                  <Text style={[styles.statNumber, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                    {scribes.filter(s => s.rating >= 4.5).length}
+                  </Text>
+                  <Text style={[styles.statLabel, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                    Highly Rated
+                  </Text>
+                </View>
+              </View>
             </View>
 
             {/* Safety Tips */}
             <View style={[styles.safetyCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
-              <Text style={[styles.sectionTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Safety tips</Text>
+              <View style={styles.safetyHeader}>
+                <Ionicons name="shield-checkmark" size={18} color="#10b981" />
+                <Text style={[styles.safetyTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Safety Tips</Text>
+              </View>
               
               <View style={styles.tipsList}>
                 <Text style={[styles.tipItem, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                  • Always meet in approved exam venues.
+                  • Meet in approved exam venues
                 </Text>
                 <Text style={[styles.tipItem, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                  • Share booking details with a guardian.
+                  • Share details with guardian
                 </Text>
                 <Text style={[styles.tipItem, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                  • Verify scribe credentials before booking.
+                  • Verify scribe credentials
                 </Text>
               </View>
+            </View>
+
+            {/* Help Section */}
+            <View style={[styles.helpCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+              <Text style={[styles.helpTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Need Help?</Text>
+              <Text style={[styles.helpText, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                Contact support for assistance with finding the right scribe for your exam.
+              </Text>
+              <TouchableOpacity style={styles.helpButton}>
+                <Text style={styles.helpButtonText}>Contact Support</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -483,51 +510,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 16,
-  },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  themeText: {
-    fontSize: 16,
-    color: '#8b5cf6',
-    fontWeight: '500',
-  },
-  aboutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  aboutText: {
-    fontSize: 14,
-    color: '#11181C',
-    fontWeight: '500',
-  },
-  menuButton: {
-    padding: 8,
-  },
   content: {
     flexDirection: 'row',
     gap: 16,
@@ -538,22 +520,47 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   sidebar: {
-    flex: 1,
+    width: 280,
     gap: 16,
   },
   searchCard: {
-    padding: 20,
-    borderRadius: 12,
+    padding: 24,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.1)',
+  },
+  searchHeader: {
+    marginBottom: 20,
+  },
+  searchTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    marginBottom: 8,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
+  },
+  searchDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  searchInputContainer: {
+    flex: 2,
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  searchIcon: {
+    position: 'absolute',
+    left: 16,
+    zIndex: 1,
   },
   searchRow: {
     flexDirection: 'row',
@@ -561,12 +568,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   searchInput: {
-    flex: 2,
+    flex: 1,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 14,
+    borderRadius: 12,
+    padding: 16,
+    paddingLeft: 48,
+    fontSize: 16,
   },
   dropdownContainer: {
     flex: 1,
@@ -577,12 +585,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    borderRadius: 8,
-    padding: 12,
+    borderRadius: 12,
+    padding: 16,
+    gap: 8,
   },
   dropdownText: {
     fontSize: 14,
     fontWeight: '500',
+    flex: 1,
   },
   searchActions: {
     flexDirection: 'row',
@@ -590,44 +600,31 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   searchButton: {
-    backgroundColor: '#8b5cf6',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
+    flex: 2,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
-    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   searchButtonText: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
   },
   resetButton: {
-    backgroundColor: '#f3f4f6',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    alignItems: 'center',
     flex: 1,
-  },
-  resetButtonText: {
-    color: '#6c757d',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  mapPlaceholder: {
-    height: 120,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    justifyContent: 'center',
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
     gap: 8,
   },
-  mapText: {
+  resetButtonText: {
     fontSize: 14,
-    textAlign: 'center',
-    paddingHorizontal: 20,
+    fontWeight: '600',
   },
   scribeListings: {
     gap: 16,
@@ -636,11 +633,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
+  },
+  listingsTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  resultsBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
   },
   resultsCount: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   loadingContainer: {
     alignItems: 'center',
@@ -669,75 +676,107 @@ const styles = StyleSheet.create({
   },
   scribeCard: {
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.1)',
+  },
+  scribeCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    gap: 12,
+  },
+  scribeAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scribeInitial: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
   },
   scribeInfo: {
-    marginBottom: 16,
+    flex: 1,
   },
   scribeName: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
   },
-  scribeDistance: {
-    fontSize: 14,
-    marginBottom: 4,
-  },
-  scribeExpertise: {
-    fontSize: 14,
-    marginBottom: 8,
-  },
-  ratingContainer: {
+  scribeLocation: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 4,
   },
-  stars: {
+  scribeDistance: {
+    fontSize: 14,
+  },
+  ratingBadge: {
     flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   ratingText: {
     fontSize: 14,
     fontWeight: '600',
   },
+  scribeExpertise: {
+    marginBottom: 16,
+    gap: 8,
+  },
+  expertiseItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  expertiseText: {
+    fontSize: 13,
+    flex: 1,
+  },
+  scribeFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  bookingInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+  },
   bookingCount: {
     fontSize: 12,
-    color: '#6c757d',
   },
   scribeActions: {
     flexDirection: 'row',
     gap: 12,
   },
   viewButton: {
-    flex: 1,
-    backgroundColor: '#e0e7ff',
     paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    borderRadius: 12,
     alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
   },
   viewButtonText: {
-    color: '#8b5cf6',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  bookButton: {
-    flex: 1,
-    backgroundColor: '#8b5cf6',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  bookButtonText: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '600',
   },
-  filtersCard: {
-    padding: 20,
+  statsCard: {
+    padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -745,42 +784,51 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  filterField: {
+  statsGrid: {
+    flexDirection: 'row',
+    gap: 16,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  safetyCard: {
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  safetyHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 16,
+    marginBottom: 12,
   },
-  filterLabel: {
-    fontSize: 14,
-    fontWeight: '500',
+  safetyTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  distanceInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-    borderRadius: 8,
-    padding: 8,
-    fontSize: 14,
-    textAlign: 'center',
+  tipsList: {
+    gap: 6,
   },
-  distanceUnit: {
-    fontSize: 14,
-    fontWeight: '500',
+  tipItem: {
+    fontSize: 13,
+    lineHeight: 18,
   },
-  advancedButton: {
-    backgroundColor: '#f3f4f6',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  advancedButtonText: {
-    color: '#6c757d',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  safetyCard: {
-    padding: 20,
+  helpCard: {
+    padding: 16,
     borderRadius: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -788,12 +836,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  tipsList: {
-    gap: 8,
+  helpTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
-  tipItem: {
-    fontSize: 14,
-    lineHeight: 20,
+  helpText: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: 12,
+  },
+  helpButton: {
+    backgroundColor: '#8b5cf6',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+  },
+  helpButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
