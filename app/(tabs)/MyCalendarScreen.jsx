@@ -2,14 +2,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import useFirebase from '../../hooks/useFirebase';
@@ -458,14 +458,6 @@ export default function MyCalendarScreen() {
                 color={isLoading ? "#9ca3af" : "#8b5cf6"} 
               />
             </TouchableOpacity>
-            <Text style={styles.themeText}>Theme</Text>
-            <TouchableOpacity style={styles.aboutButton}>
-              <Ionicons name="information-circle" size={16} color="#6c757d" />
-              <Text style={styles.aboutText}>About</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.menuButton}>
-              <Ionicons name="menu" size={20} color="#6c757d" />
-            </TouchableOpacity>
           </View>
         </View>
 
@@ -607,28 +599,6 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   refreshButton: {
-    padding: 8,
-  },
-  themeText: {
-    fontSize: 16,
-    color: '#8b5cf6',
-    fontWeight: '500',
-  },
-  aboutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 6,
-  },
-  aboutText: {
-    fontSize: 14,
-    color: '#11181C',
-    fontWeight: '500',
-  },
-  menuButton: {
     padding: 8,
   },
   mainCard: {

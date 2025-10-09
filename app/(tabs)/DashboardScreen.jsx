@@ -73,32 +73,39 @@ export default function DashboardScreen() {
   };
 
   const handleNewRequest = () => {
-    // TODO: Navigate to booking screen
-    if (userProfile?.role === 'student') {
-      // For students, navigate to Find Scribe
-      navigation.navigate('Find Scribe');
-    } else {
-      Alert.alert('New Request', 'Navigate to booking screen');
-    }
+    // Navigate to Find Scribe screen for both students and scribes
+    navigation.navigate('Find Scribe');
   };
 
   const handleSetAvailability = () => {
-    // TODO: Navigate to availability settings
-    Alert.alert('Set Availability', 'Navigate to availability settings');
+    // Navigate to Profile screen where scribes can update their availability
+    navigation.navigate('Profile');
   };
 
   const handleViewAllBookings = () => {
-    // TODO: Navigate to all bookings screen
-    if (userProfile?.role === 'student') {
-      // For students, navigate to My Calendar
-      navigation.navigate('MyCalendar');
-    } else {
-      Alert.alert('View All', 'Navigate to all bookings screen');
-    }
+    // Navigate to My Calendar for both students and scribes
+    navigation.navigate('MyCalendar');
   };
 
   const handleQuickAction = (action) => {
-    Alert.alert('Quick Action', `${action} clicked`);
+    switch (action) {
+      case 'Resources':
+        navigation.navigate('Resource Bank');
+        break;
+      case 'Calendar':
+        navigation.navigate('MyCalendar');
+        break;
+      case 'Support':
+        // Navigate to About screen for support information
+        navigation.navigate('About');
+        break;
+      case 'Settings':
+        // Navigate to Profile screen for settings
+        navigation.navigate('Profile');
+        break;
+      default:
+        Alert.alert('Quick Action', `${action} clicked`);
+    }
   };
 
   const getStatusColor = (status) => {
