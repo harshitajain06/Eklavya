@@ -1,17 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react';
 import {
-    Alert,
-    FlatList,
-    Modal,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  Alert,
+  FlatList,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { useColorScheme } from '../../hooks/useColorScheme';
 import useFirebase from '../../hooks/useFirebase';
@@ -40,6 +40,7 @@ export default function ProfileScreen() {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [showSubjectModal, setShowSubjectModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   // Available options for dropdowns
   const availableLanguages = ['English', 'Hindi', 'Gujarati', 'Marathi', 'Tamil', 'Telugu', 'Kannada', 'Malayalam', 'Bengali', 'Punjabi'];
@@ -188,7 +189,7 @@ export default function ProfileScreen() {
   };
 
   const handleHelp = () => {
-    Alert.alert('Help', 'Help section will be implemented soon');
+    setShowContactModal(true);
   };
 
   if (isLoading) {
@@ -293,7 +294,7 @@ export default function ProfileScreen() {
                       style={styles.dropdownButton}
                       onPress={() => setShowLanguageModal(true)}
                     >
-                      <Text style={styles.dropdownButtonText}>
+                      <Text style={[styles.dropdownButtonText, { color: isDarkMode ? '#fff' : '#11181C' }]}>
                         {selectedLanguages.length > 0 ? selectedLanguages.join(', ') : 'Select languages'}
                       </Text>
                       <Ionicons name="chevron-down" size={16} color="#6c757d" />
@@ -312,7 +313,7 @@ export default function ProfileScreen() {
                       style={styles.dropdownButton}
                       onPress={() => setShowSubjectModal(true)}
                     >
-                      <Text style={styles.dropdownButtonText}>
+                      <Text style={[styles.dropdownButtonText, { color: isDarkMode ? '#fff' : '#11181C' }]}>
                         {selectedSubjects.length > 0 ? selectedSubjects.join(', ') : 'Select subjects'}
                       </Text>
                       <Ionicons name="chevron-down" size={16} color="#6c757d" />
@@ -439,7 +440,7 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowLanguageModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1a1a1a' : '#fff' }]}>
               <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Select Languages</Text>
                 <TouchableOpacity onPress={() => setShowLanguageModal(false)}>
@@ -459,13 +460,13 @@ export default function ProfileScreen() {
                   >
                     <Text style={[
                       styles.modalItemText,
-                      { color: isDarkMode ? '#fff' : '#11181C' },
+                      { color: selectedLanguages.includes(item) ? '#fff' : (isDarkMode ? '#fff' : '#11181C') },
                       selectedLanguages.includes(item) && styles.selectedModalItemText
                     ]}>
                       {item}
                     </Text>
                     {selectedLanguages.includes(item) && (
-                      <Ionicons name="checkmark" size={20} color="#8b5cf6" />
+                      <Ionicons name="checkmark" size={20} color="#fff" />
                     )}
                   </TouchableOpacity>
                 )}
@@ -482,7 +483,7 @@ export default function ProfileScreen() {
           onRequestClose={() => setShowSubjectModal(false)}
         >
           <View style={styles.modalOverlay}>
-            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1a1a1a' : '#fff' }]}>
               <View style={styles.modalHeader}>
                 <Text style={[styles.modalTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Select Subjects</Text>
                 <TouchableOpacity onPress={() => setShowSubjectModal(false)}>
@@ -502,17 +503,79 @@ export default function ProfileScreen() {
                   >
                     <Text style={[
                       styles.modalItemText,
-                      { color: isDarkMode ? '#fff' : '#11181C' },
+                      { color: selectedSubjects.includes(item) ? '#fff' : (isDarkMode ? '#fff' : '#11181C') },
                       selectedSubjects.includes(item) && styles.selectedModalItemText
                     ]}>
                       {item}
                     </Text>
                     {selectedSubjects.includes(item) && (
-                      <Ionicons name="checkmark" size={20} color="#8b5cf6" />
+                      <Ionicons name="checkmark" size={20} color="#fff" />
                     )}
                   </TouchableOpacity>
                 )}
               />
+            </View>
+          </View>
+        </Modal>
+
+        {/* Contact Support Modal */}
+        <Modal
+          visible={showContactModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowContactModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1a1a1a' : '#fff' }]}>
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modalTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Contact Support</Text>
+                <TouchableOpacity onPress={() => setShowContactModal(false)}>
+                  <Ionicons name="close" size={24} color="#6c757d" />
+                </TouchableOpacity>
+              </View>
+              
+              <View style={styles.contactContent}>
+                <View style={styles.contactIconContainer}>
+                  <Ionicons name="call" size={48} color="#8b5cf6" />
+                </View>
+                
+                <Text style={[styles.contactTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                  Get Help Anytime
+                </Text>
+                
+                <Text style={[styles.contactDescription, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                  Our support team is available to help you with any questions or issues you may have.
+                </Text>
+                
+                <View style={[styles.contactNumberContainer, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8fafc' }]}>
+                  <Ionicons name="phone-portrait" size={20} color="#8b5cf6" />
+                  <Text style={[styles.contactNumber, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                    +91 9265652615
+                  </Text>
+                </View>
+                
+                <View style={styles.contactActions}>
+                  <TouchableOpacity 
+                    style={[styles.contactButton, { backgroundColor: '#8b5cf6' }]}
+                    onPress={() => {
+                      Alert.alert('Call Support', 'Calling +91 9265652615...');
+                    }}
+                  >
+                    <Ionicons name="call" size={18} color="#fff" />
+                    <Text style={styles.contactButtonText}>Call Now</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.contactButton, { backgroundColor: isDarkMode ? '#374151' : '#f1f5f9' }]}
+                    onPress={() => {
+                      Alert.alert('Copied', 'Phone number copied to clipboard');
+                    }}
+                  >
+                    <Ionicons name="copy" size={18} color={isDarkMode ? '#e2e8f0' : '#475569'} />
+                    <Text style={[styles.contactButtonText, { color: isDarkMode ? '#e2e8f0' : '#475569' }]}>Copy Number</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           </View>
         </Modal>
@@ -797,20 +860,78 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: '#f8f9fa',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 4,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#333',
   },
   selectedModalItem: {
     backgroundColor: '#8b5cf6',
+    borderColor: '#8b5cf6',
   },
   modalItemText: {
     fontSize: 16,
     fontWeight: '500',
+    color: '#fff',
   },
   selectedModalItemText: {
+    color: '#fff',
+  },
+  // Contact Support Modal Styles
+  contactContent: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  contactIconContainer: {
+    marginBottom: 20,
+  },
+  contactTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  contactDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  contactNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 24,
+    gap: 12,
+  },
+  contactNumber: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  contactActions: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  contactButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  contactButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
     color: '#fff',
   },
 });

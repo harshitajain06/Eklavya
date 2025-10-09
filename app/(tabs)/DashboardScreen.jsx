@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Modal,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -24,6 +25,7 @@ export default function DashboardScreen() {
   const [upcomingBookings, setUpcomingBookings] = useState([]);
   const [recentBookings, setRecentBookings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -88,6 +90,12 @@ export default function DashboardScreen() {
   };
 
   const handleQuickAction = (action) => {
+    // Don't allow navigation if still loading
+    if (isLoading) {
+      Alert.alert('Please wait', 'Loading user data...');
+      return;
+    }
+
     switch (action) {
       case 'Resources':
         navigation.navigate('Resource Bank');
@@ -96,12 +104,20 @@ export default function DashboardScreen() {
         navigation.navigate('MyCalendar');
         break;
       case 'Support':
-        // Navigate to About screen for support information
-        navigation.navigate('About');
+        setShowContactModal(true);
         break;
       case 'Settings':
-        // Navigate to Profile screen for settings
-        navigation.navigate('Profile');
+        // Navigate to StudentProfile for students, Profile for scribes
+        console.log('Settings clicked - userProfile:', userProfile);
+        console.log('User role:', userProfile?.role);
+        if (userProfile?.role === 'scribe') {
+          console.log('Navigating to Profile (scribe)');
+          navigation.navigate('Profile');
+        } else {
+          console.log('Navigating to StudentProfile (student or default)');
+          // Default to StudentProfile for students or if role is not loaded yet
+          navigation.navigate('StudentProfile');
+        }
         break;
       default:
         Alert.alert('Quick Action', `${action} clicked`);
@@ -451,6 +467,68 @@ export default function DashboardScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {/* Contact Support Modal */}
+      <Modal
+        visible={showContactModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowContactModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: isDarkMode ? '#1a1a1a' : '#fff' }]}>
+            <View style={styles.modalHeader}>
+              <Text style={[styles.modalTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>Contact Support</Text>
+              <TouchableOpacity onPress={() => setShowContactModal(false)}>
+                <Ionicons name="close" size={24} color="#6c757d" />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.contactContent}>
+              <View style={styles.contactIconContainer}>
+                <Ionicons name="call" size={48} color="#8b5cf6" />
+              </View>
+              
+              <Text style={[styles.contactTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                Get Help Anytime
+              </Text>
+              
+              <Text style={[styles.contactDescription, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+                Our support team is available to help you with any questions or issues you may have.
+              </Text>
+              
+              <View style={[styles.contactNumberContainer, { backgroundColor: isDarkMode ? '#2a2a2a' : '#f8fafc' }]}>
+                <Ionicons name="phone-portrait" size={20} color="#8b5cf6" />
+                <Text style={[styles.contactNumber, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+                  +91 9265652615
+                </Text>
+              </View>
+              
+              <View style={styles.contactActions}>
+                <TouchableOpacity 
+                  style={[styles.contactButton, { backgroundColor: '#8b5cf6' }]}
+                  onPress={() => {
+                    Alert.alert('Call Support', 'Calling +91 9265652615...');
+                  }}
+                >
+                  <Ionicons name="call" size={18} color="#fff" />
+                  <Text style={styles.contactButtonText}>Call Now</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={[styles.contactButton, { backgroundColor: isDarkMode ? '#374151' : '#f1f5f9' }]}
+                  onPress={() => {
+                    Alert.alert('Copied', 'Phone number copied to clipboard');
+                  }}
+                >
+                  <Ionicons name="copy" size={18} color={isDarkMode ? '#e2e8f0' : '#475569'} />
+                  <Text style={[styles.contactButtonText, { color: isDarkMode ? '#e2e8f0' : '#475569' }]}>Copy Number</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -697,5 +775,81 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center',
     fontWeight: '500',
+  },
+  // Contact Support Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    width: '80%',
+    maxHeight: '70%',
+    borderRadius: 12,
+    padding: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  contactContent: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  contactIconContainer: {
+    marginBottom: 20,
+  },
+  contactTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  contactDescription: {
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  contactNumberContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginBottom: 24,
+    gap: 12,
+  },
+  contactNumber: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  contactActions: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  contactButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    gap: 8,
+  },
+  contactButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
   },
 });

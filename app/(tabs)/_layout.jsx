@@ -19,6 +19,7 @@ import MyCalendarScreen from "./MyCalendarScreen";
 import ProfileScreen from "./ProfileScreen";
 import ResourceBankScreen from "./ResourceBankScreen";
 import ScribeViewScreen from "./ScribeViewScreen";
+import StudentProfileScreen from "./StudentProfileScreen";
 
 import { auth } from '../../config/Firebase';
 import { Colors } from "../../constants/Colors";
@@ -233,6 +234,20 @@ export default function StackLayout() {
           <Stack.Screen 
             name="BookScribe" 
             component={BookScribeScreen}
+            options={{ headerShown: false }}
+          />
+        )}
+        {user && (
+          <Stack.Screen 
+            name="StudentProfile" 
+            component={StudentProfileScreen}
+            options={{ headerShown: false }}
+          />
+        )}
+        {user && (
+          <Stack.Screen 
+            name="Profile" 
+            component={ProfileScreen}
             options={{ headerShown: false }}
           />
         )}

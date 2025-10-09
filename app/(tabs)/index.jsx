@@ -6,13 +6,14 @@ import { doc, getDoc, getFirestore, serverTimestamp, setDoc } from 'firebase/fir
 import React, { useEffect, useState } from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import {
-  ActivityIndicator, Alert,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text, TextInput, TouchableOpacity,
-  View
+    ActivityIndicator, Alert,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text, TextInput, TouchableOpacity,
+    View
 } from 'react-native';
+import EklavyaLogo from '../../components/EklavyaLogo';
 import { auth } from '../../config/Firebase';
 
 export default function AuthPage() {
@@ -28,10 +29,12 @@ export default function AuthPage() {
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [loginErrors, setLoginErrors] = useState({});
 
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
+  const [registerErrors, setRegisterErrors] = useState({});
   const [role, setRole] = useState('student');
 
   const db = getFirestore();
@@ -42,9 +45,67 @@ export default function AuthPage() {
     }
   }, [user]);
 
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePassword = (password) => {
+    return password.length >= 6;
+  };
+
+  const validateName = (name) => {
+    return name.trim().length >= 2;
+  };
+
+  const validateLoginForm = () => {
+    const errors = {};
+    
+    if (!loginEmail.trim()) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(loginEmail)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!loginPassword) {
+      errors.password = 'Password is required';
+    } else if (!validatePassword(loginPassword)) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+    
+    setLoginErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateRegisterForm = () => {
+    const errors = {};
+    
+    if (!registerName.trim()) {
+      errors.name = 'Full name is required';
+    } else if (!validateName(registerName)) {
+      errors.name = 'Name must be at least 2 characters';
+    }
+    
+    if (!registerEmail.trim()) {
+      errors.email = 'Email is required';
+    } else if (!validateEmail(registerEmail)) {
+      errors.email = 'Please enter a valid email address';
+    }
+    
+    if (!registerPassword) {
+      errors.password = 'Password is required';
+    } else if (!validatePassword(registerPassword)) {
+      errors.password = 'Password must be at least 6 characters';
+    }
+    
+    setRegisterErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleLogin = async () => {
-    if (!loginEmail || !loginPassword) {
-      return Alert.alert('Error', 'Please fill all fields.');
+    if (!validateLoginForm()) {
+      return;
     }
     setIsLoading(true);
     try {
@@ -75,8 +136,8 @@ export default function AuthPage() {
   };
 
   const handleRegister = async () => {
-    if (!registerName || !registerEmail || !registerPassword) {
-      return Alert.alert('Error', 'Please fill all fields.');
+    if (!validateRegisterForm()) {
+      return;
     }
     setIsLoading(true);
     try {
@@ -138,14 +199,14 @@ export default function AuthPage() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={[styles.contentWrapper, isWeb && styles.webContentWrapper]}>
-        <View style={styles.iconContainer}>
-          <View style={styles.iconCircle}>
-            <Text style={styles.icon}>🛡️</Text>
-          </View>
+        <View style={styles.logoContainer}>
+          <EklavyaLogo size={isWeb ? 60 : 50} color="#8b5cf6" />
         </View>
         
-        <Text style={[styles.title, isDarkMode && { color: '#fff' }]}>Welcome back</Text>
-        <Text style={[styles.subtitle, isDarkMode && { color: '#ccc' }]}>Sign in with your account</Text>
+        <Text style={[styles.title, isDarkMode && { color: '#fff' }]}>Eklavya</Text>
+        <Text style={[styles.subtitle, isDarkMode && { color: '#ccc' }]}>
+          {mode === 'login' ? 'Sign in to your account' : 'Create your account'}
+        </Text>
 
         <View style={[styles.tabContainer, isWeb && styles.webTabContainer]}>
           <TouchableOpacity 
@@ -186,13 +247,20 @@ export default function AuthPage() {
               style={[
                 styles.input, 
                 isDarkMode && { backgroundColor: '#2a2a2a', color: '#fff' },
-                isWeb && styles.webInput
+                isWeb && styles.webInput,
+                loginErrors.email && styles.inputError
               ]} 
               value={loginEmail} 
-              onChangeText={setLoginEmail} 
+              onChangeText={(text) => {
+                setLoginEmail(text);
+                if (loginErrors.email) {
+                  setLoginErrors({ ...loginErrors, email: '' });
+                }
+              }} 
               keyboardType="email-address" 
               autoCapitalize="none" 
             />
+            {loginErrors.email && <Text style={styles.errorText}>{loginErrors.email}</Text>}
             
             <Text style={[styles.label, isDarkMode && { color: '#ccc' }]}>Password</Text>
             <TextInput 
@@ -201,11 +269,18 @@ export default function AuthPage() {
               style={[
                 styles.input, 
                 isDarkMode && { backgroundColor: '#2a2a2a', color: '#fff' },
-                isWeb && styles.webInput
+                isWeb && styles.webInput,
+                loginErrors.password && styles.inputError
               ]} 
               value={loginPassword} 
-              onChangeText={setLoginPassword} 
+              onChangeText={(text) => {
+                setLoginPassword(text);
+                if (loginErrors.password) {
+                  setLoginErrors({ ...loginErrors, password: '' });
+                }
+              }} 
             />
+            {loginErrors.password && <Text style={styles.errorText}>{loginErrors.password}</Text>}
             
             <TouchableOpacity 
               onPress={handleLogin} 
@@ -213,14 +288,6 @@ export default function AuthPage() {
               disabled={isLoading}
             >
               {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign in</Text>}
-            </TouchableOpacity>
-
-            <View style={styles.divider}>
-              <Text style={[styles.dividerText, isDarkMode && { color: '#ccc' }]}>or</Text>
-            </View>
-
-            <TouchableOpacity style={[styles.googleButton, isWeb && styles.webGoogleButton]}>
-              <Text style={styles.googleButtonText}>Continue with Google</Text>
             </TouchableOpacity>
 
             <View style={styles.createAccount}>
@@ -238,11 +305,18 @@ export default function AuthPage() {
               style={[
                 styles.input, 
                 isDarkMode && { backgroundColor: '#2a2a2a', color: '#fff' },
-                isWeb && styles.webInput
+                isWeb && styles.webInput,
+                registerErrors.name && styles.inputError
               ]} 
               value={registerName} 
-              onChangeText={setRegisterName} 
+              onChangeText={(text) => {
+                setRegisterName(text);
+                if (registerErrors.name) {
+                  setRegisterErrors({ ...registerErrors, name: '' });
+                }
+              }} 
             />
+            {registerErrors.name && <Text style={styles.errorText}>{registerErrors.name}</Text>}
             
             <Text style={[styles.label, isDarkMode && { color: '#ccc' }]}>Email</Text>
             <TextInput 
@@ -250,13 +324,20 @@ export default function AuthPage() {
               style={[
                 styles.input, 
                 isDarkMode && { backgroundColor: '#2a2a2a', color: '#fff' },
-                isWeb && styles.webInput
+                isWeb && styles.webInput,
+                registerErrors.email && styles.inputError
               ]} 
               value={registerEmail} 
-              onChangeText={setRegisterEmail} 
+              onChangeText={(text) => {
+                setRegisterEmail(text);
+                if (registerErrors.email) {
+                  setRegisterErrors({ ...registerErrors, email: '' });
+                }
+              }} 
               keyboardType="email-address" 
               autoCapitalize="none" 
             />
+            {registerErrors.email && <Text style={styles.errorText}>{registerErrors.email}</Text>}
             
             <Text style={[styles.label, isDarkMode && { color: '#ccc' }]}>Password</Text>
             <TextInput 
@@ -265,11 +346,18 @@ export default function AuthPage() {
               style={[
                 styles.input, 
                 isDarkMode && { backgroundColor: '#2a2a2a', color: '#fff' },
-                isWeb && styles.webInput
+                isWeb && styles.webInput,
+                registerErrors.password && styles.inputError
               ]} 
               value={registerPassword} 
-              onChangeText={setRegisterPassword} 
+              onChangeText={(text) => {
+                setRegisterPassword(text);
+                if (registerErrors.password) {
+                  setRegisterErrors({ ...registerErrors, password: '' });
+                }
+              }} 
             />
+            {registerErrors.password && <Text style={styles.errorText}>{registerErrors.password}</Text>}
 
             <Text style={[styles.label, isDarkMode && { color: '#ccc' }]}>Select Role</Text>
             <View style={[styles.roleContainer, isWeb && styles.webRoleContainer]}>
@@ -297,77 +385,74 @@ export default function AuthPage() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 24,
-    paddingTop: 60,
+    padding: 8,
+    paddingTop: 16,
     backgroundColor: '#f8fafc',
     minHeight: '100%',
+    flex: 1,
   },
   webContainer: {
     minHeight: '100vh',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 12,
   },
   contentWrapper: {
     width: '100%',
-    maxWidth: 400,
+    maxWidth: 480,
+    flex: 1,
+    justifyContent: 'center',
   },
   webContentWrapper: {
     backgroundColor: '#fff',
-    padding: 40,
-    borderRadius: 16,
+    padding: 20,
+    borderRadius: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 4,
+    maxHeight: '90vh',
+    overflow: 'hidden',
   },
-  iconContainer: { 
+  logoContainer: { 
     alignItems: 'center', 
-    marginBottom: 16 
-  },
-  iconCircle: { 
-    backgroundColor: '#e6f0ff', 
-    padding: 12, 
-    borderRadius: 999 
-  },
-  icon: { 
-    fontSize: 32, 
-    color: '#007bff' 
+    marginBottom: 12 
   },
   title: { 
-    fontSize: 28, 
+    fontSize: 18, 
     fontWeight: 'bold', 
     textAlign: 'center', 
-    marginBottom: 8,
+    marginBottom: 4,
     color: '#11181C'
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 11,
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 16,
     color: '#6c757d'
   },
   tabContainer: { 
     flexDirection: 'row', 
     justifyContent: 'center', 
-    marginBottom: 32, 
+    marginBottom: 16, 
     backgroundColor: '#f0f0f0', 
-    borderRadius: 12 
+    borderRadius: 8 
   },
   webTabContainer: {
-    marginBottom: 40,
+    marginBottom: 20,
   },
   tab: { 
     flex: 1, 
-    paddingVertical: 12, 
+    paddingVertical: 8, 
     alignItems: 'center', 
-    borderRadius: 12 
+    borderRadius: 8 
   },
   activeTabBackground: { 
     backgroundColor: '#e6f0ff' 
   },
   tabText: { 
-    fontSize: 16, 
+    fontSize: 13, 
     color: '#6c757d', 
     fontWeight: '600' 
   },
@@ -375,52 +460,63 @@ const styles = StyleSheet.create({
     color: '#007bff' 
   },
   roleLabel: {
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
-    marginBottom: 12,
+    marginBottom: 8,
     color: '#11181C'
   },
   label: { 
-    marginBottom: 6, 
+    marginBottom: 3, 
     fontWeight: '500', 
     color: '#11181C',
-    fontSize: 16
+    fontSize: 13
   },
   form: { 
-    marginBottom: 30 
+    marginBottom: 12 
   },
   webForm: {
     marginBottom: 0,
   },
   input: { 
     backgroundColor: '#fff', 
-    padding: 16, 
-    borderRadius: 12, 
-    marginBottom: 16, 
+    padding: 10, 
+    borderRadius: 8, 
+    marginBottom: 8, 
     borderWidth: 1, 
     borderColor: '#e5e7eb', 
-    fontSize: 16 
+    fontSize: 13 
+  },
+  inputError: {
+    borderColor: '#ef4444',
+    borderWidth: 2,
+  },
+  errorText: {
+    color: '#ef4444',
+    fontSize: 10,
+    marginTop: -4,
+    marginBottom: 4,
+    marginLeft: 4,
   },
   webInput: {
-    padding: 18,
-    fontSize: 16,
-    marginBottom: 20,
+    padding: 12,
+    fontSize: 13,
+    marginBottom: 10,
   },
   roleContainer: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
-    marginBottom: 24, 
-    gap: 12 
+    marginBottom: 12, 
+    gap: 8 
   },
   webRoleContainer: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   roleOption: { 
     flex: 1, 
-    padding: 16, 
+    padding: 10, 
     borderWidth: 1, 
     borderColor: '#e5e7eb', 
-    borderRadius: 12, 
+    borderRadius: 8, 
     alignItems: 'center',
     backgroundColor: '#fff'
   },
@@ -429,7 +525,7 @@ const styles = StyleSheet.create({
     borderColor: '#8b5cf6' 
   },
   roleText: { 
-    fontSize: 16, 
+    fontSize: 13, 
     fontWeight: '600',
     color: '#6c757d'
   },
@@ -438,47 +534,19 @@ const styles = StyleSheet.create({
   },
   button: { 
     backgroundColor: '#8b5cf6', 
-    padding: 16, 
-    borderRadius: 12, 
+    padding: 10, 
+    borderRadius: 8, 
     alignItems: 'center',
-    marginBottom: 24
+    marginBottom: 10
   },
   webButton: {
-    padding: 18,
-    marginBottom: 32,
+    padding: 12,
+    marginBottom: 16,
   },
   buttonText: { 
     color: '#fff', 
     fontWeight: 'bold', 
-    fontSize: 16 
-  },
-  divider: {
-    alignItems: 'center',
-    marginBottom: 24
-  },
-  dividerText: {
-    fontSize: 16,
-    color: '#6c757d',
-    backgroundColor: '#f8fafc',
-    paddingHorizontal: 16
-  },
-  googleButton: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#8b5cf6',
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginBottom: 24
-  },
-  webGoogleButton: {
-    padding: 18,
-    marginBottom: 32,
-  },
-  googleButtonText: {
-    color: '#8b5cf6',
-    fontWeight: '600',
-    fontSize: 16
+    fontSize: 13 
   },
   createAccount: {
     flexDirection: 'row',
@@ -486,11 +554,11 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   createAccountText: {
-    fontSize: 16,
+    fontSize: 13,
     color: '#6c757d'
   },
   createAccountLink: {
-    fontSize: 16,
+    fontSize: 13,
     color: '#8b5cf6',
     fontWeight: '600',
     textDecorationLine: 'underline'
