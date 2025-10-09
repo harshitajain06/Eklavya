@@ -164,14 +164,6 @@ export default function DashboardScreen() {
               {userProfile?.role === 'scribe' ? 'Manage your scribe services' : (userProfile?.role === 'student' ? 'Track your exam bookings' : 'Welcome to Eklavya')}
             </Text>
           </View>
-          <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.notificationButton}>
-              <Ionicons name="notifications-outline" size={24} color="#6c757d" />
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.profileButton}>
-              <Ionicons name="person-circle-outline" size={24} color="#6c757d" />
-            </TouchableOpacity>
-          </View>
         </View>
 
         {/* Summary Cards - Show for students */}
@@ -500,16 +492,6 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 16,
     lineHeight: 22,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  notificationButton: {
-    padding: 8,
-  },
-  profileButton: {
-    padding: 8,
   },
   summaryRow: {
     flexDirection: 'row',

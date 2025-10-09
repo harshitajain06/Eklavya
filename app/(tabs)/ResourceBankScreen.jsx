@@ -1,10 +1,10 @@
+import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import {
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View
 } from 'react-native';
 import { useColorScheme } from '../../hooks/useColorScheme';
@@ -13,64 +13,22 @@ export default function ResourceBankScreen() {
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
 
-  const resources = [
-    {
-      id: 1,
-      title: 'Math audio resources',
-      subtitle: 'Audio',
-      description: 'Curated playlists for IB & CBSE',
-      type: 'audio'
-    },
-    {
-      id: 2,
-      title: 'Screen reader shortcuts',
-      subtitle: 'Guide',
-      description: 'NVDA, VoiceOver, TalkBack',
-      type: 'guide'
-    },
-    {
-      id: 3,
-      title: 'Accessible exam tips',
-      subtitle: 'Tips',
-      description: 'Best practices for students & scribes',
-      type: 'tips'
-    }
-  ];
-
-  const handleOpenResource = (resource) => {
-    // TODO: Implement resource opening functionality
-    console.log('Opening resource:', resource.title);
-  };
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: isDarkMode ? '#121212' : '#f5f5f5' }]}>
       <ScrollView style={styles.container}>
 
-        {/* Resource Cards */}
-        <View style={styles.resourcesContainer}>
-          {resources.map((resource) => (
-            <View key={resource.id} style={[styles.resourceCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
-              <View style={styles.resourceHeader}>
-                <Text style={[styles.resourceTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>
-                  {resource.title}
-                </Text>
-                <Text style={[styles.resourceSubtitle, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                  {resource.subtitle}
-                </Text>
-              </View>
-              
-              <Text style={[styles.resourceDescription, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
-                {resource.description}
-              </Text>
-              
-              <TouchableOpacity 
-                style={styles.openButton}
-                onPress={() => handleOpenResource(resource)}
-              >
-                <Text style={styles.openButtonText}>Open</Text>
-              </TouchableOpacity>
-            </View>
-          ))}
+        {/* Work in Progress */}
+        <View style={styles.workInProgressContainer}>
+          <View style={[styles.workInProgressCard, { backgroundColor: isDarkMode ? '#1e1e1e' : '#fff' }]}>
+            <Ionicons name="construct-outline" size={64} color="#8b5cf6" />
+            <Text style={[styles.workInProgressTitle, { color: isDarkMode ? '#fff' : '#11181C' }]}>
+              Work in Progress
+            </Text>
+            <Text style={[styles.workInProgressDescription, { color: isDarkMode ? '#ccc' : '#6c757d' }]}>
+              We&apos;re building an amazing resource bank with audio materials, guides, and tips for students and scribes. Stay tuned!
+            </Text>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -85,46 +43,33 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
   },
-  resourcesContainer: {
-    gap: 16,
-    paddingVertical: 20,
+  workInProgressContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
   },
-  resourceCard: {
-    padding: 20,
-    borderRadius: 12,
+  workInProgressCard: {
+    alignItems: 'center',
+    padding: 40,
+    borderRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 8,
+    elevation: 5,
+    maxWidth: 320,
   },
-  resourceHeader: {
-    marginBottom: 12,
-  },
-  resourceTitle: {
-    fontSize: 18,
+  workInProgressTitle: {
+    fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 4,
+    marginTop: 20,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  resourceSubtitle: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  resourceDescription: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginBottom: 20,
-  },
-  openButton: {
-    backgroundColor: '#f3f4f6',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    alignSelf: 'flex-start',
-  },
-  openButtonText: {
-    color: '#8b5cf6',
-    fontSize: 14,
-    fontWeight: '600',
+  workInProgressDescription: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: 'center',
   },
 });
